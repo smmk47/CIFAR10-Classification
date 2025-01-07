@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CIFAR-10 Image Classification</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin-top: 50px;
+        }
+        .container {
+            display: inline-block;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+        input[type=file] {
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        input[type=submit] {
+            padding: 10px 20px;
+            background-color: #4CAF50; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CIFAR-10 Image Classification</h1>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <br><br>
+            <input type="submit" value="Upload and Classify">
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        const form = document.querySelector('form');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            resultDiv.innerHTML = 'Classifying...';
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                resultDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+            } else {
+                resultDiv.innerHTML = `
+                    <h3>Predictions:</h3>
+                    <p><strong>Vision Transformer:</strong> ${data['Vision Transformer Prediction']}</p>
+                    <p><strong>Hybrid CNN-MLP:</strong> ${data['Hybrid CNN-MLP Prediction']}</p>
+                    <p><strong>ResNet:</strong> ${data['ResNet Prediction']}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
